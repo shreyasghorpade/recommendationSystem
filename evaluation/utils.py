@@ -7,36 +7,33 @@ import random
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ----------------Preparing dataset----------------------------
+# ----------------Preparing dataset (for reindexed data)----------------------------
 def prepare_dataset(path):
-    
-    ratings = pd.read_csv(path).drop(columns=["timestamp"])
-    ratings["label"] = (ratings["rating"] >= 4.0).astype(int)
-    
-    # reindex users/items
-    uids = ratings["userId"].unique()
-    iids = ratings["movieId"].unique()
+    """
+    Load already reindexed ratings data and split into train/test.
+    Expects columns: userId, movieId, rating, label(optional)
+    """
+    ratings = pd.read_csv(path)
+
+    # Ensure label column exists
+    if "label" not in ratings.columns:
+        ratings["label"] = (ratings["rating"] >= 4.0).astype(int)
+
     n_users = ratings["userId"].nunique()
     n_items = ratings["movieId"].nunique()
-    
-    uid2idx = {u:i for i,u in enumerate(uids)}
-    iid2idx = {m:i for i,m in enumerate(iids)}
-    
-    revUserIdx = {v : k for k, v in uid2idx.items()}
-    revItemIdx = {v : k for k, v in iid2idx.items()}
-    
-    ratings["userId"] = ratings["userId"].map(uid2idx)
-    ratings["movieId"] = ratings["movieId"].map(iid2idx)
-    
-    # one positive per user for test set
+
+    # One positive per user for test
     pos = ratings[ratings.label == 1]
-    test_idx = pos.groupby("userId", group_keys=False).apply(lambda x: x.sample(1, random_state=42)).index
-    test_df = ratings.loc[test_idx][["userId","movieId","label"]]
+    test_idx = pos.groupby("userId", group_keys=False).apply(
+        lambda x: x.sample(1, random_state=42)
+    ).index
+    test_df = ratings.loc[test_idx][["userId", "movieId", "label"]]
     train_df = ratings.drop(test_idx)
 
-    # for fast lookup
     train_ui = set(zip(train_df.userId.tolist(), train_df.movieId.tolist()))
-    
-    return uids, iids, n_users, n_items, uid2idx, iid2idx, revUserIdx, revItemIdx, test_df, train_df, train_ui
+
+    return n_users, n_items, test_df, train_df, train_ui
+
     
     
 # ----------------Negative Sampling for training---------------------

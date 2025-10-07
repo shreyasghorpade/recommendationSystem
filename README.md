@@ -117,9 +117,9 @@
         <tr><th>Model</th><th>Best HR@10</th><th>Best NDCG@10</th><th>Notes</th></tr>
       </thead>
       <tbody>
-        <tr><td>MF</td><td>≈ 0.16</td><td>≈ 0.08</td><td>Linear baseline (dot product)</td></tr>
-        <tr><td>GMF</td><td>≈ 0.20</td><td>≈ 0.12</td><td>Elementwise product + linear head</td></tr>
-        <tr><td>NeuMF</td><td class="good">≈ 0.70+</td><td class="good">≈ 0.47+</td><td>GMF + MLP fusion (non-linear)</td></tr>
+        <tr><td>MF</td><td>= 0.1346 </td><td>= 0.0700</td><td>Linear baseline (dot product)</td></tr>
+        <tr><td>GMF</td><td>= 0.1461</td><td>= 0.0719</td><td>Elementwise product + linear head</td></tr>
+        <tr><td>NeuMF</td><td class="good">= 0.7192</td><td class="good">= 0.4854</td><td>GMF + MLP fusion (non-linear)</td></tr>
       </tbody>
     </table>
     <p class="muted">Your plots (attached) match expectations: NeuMF climbs rapidly and dominates; MF/GMF improve slowly.</p>
